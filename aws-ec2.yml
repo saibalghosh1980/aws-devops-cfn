@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create JENKINS Machine
+
+Parameters:
+  JenkinsMCStackName:
+    Type: String
+    Default: "SKG-DEVOPS-EC2"
+  MACHINETYPE:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+    Description: "Type of machine"
+  LatestAmiId:
+    Type: String
+    Default: ami-0a0ad6b70e61be944
+  JenkinsMCName:
+    Type: String
+    Default: "SKG-EC2"
+  JenkinsMCKVP:
+    Type: String
+    Default: "skg-devops-keypair"
+  JenkinsSG:
+    Type: String
+    Default: "sg-04d10855ad95d0dda"
+
+
+Resources: 
+  SKGEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref MACHINETYPE
+      Monitoring: true
+      KeyName: !Ref JenkinsMCKVP
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: '8'
+            DeleteOnTermination: 'true'
+            Encrypted: 'false'
+      NetworkInterfaces:
+      - GroupSet:
+        - !Ref JenkinsSG
+        AssociatePublicIpAddress: 'true'        
+        DeviceIndex: 0     
+        SubnetId: subnet-8cbbc2f6
+      UserData:
+        'Fn::Base64': !Sub |
+            #!/bin/bash -ex
+            #! /bin/bash            
+            # put your script here
+      Tags:
+        - Key: Name
+          Value:
+            Ref: JenkinsMCName
+        - Key: ENV
+          Value: DEV
+        - Key: PROJECT
+          Value: SKG-DEVOPS
+
+Outputs:
+  PUBLICIP:
+    Description: Public IP
+    Value: !GetAtt SKGEC2.PublicIp
