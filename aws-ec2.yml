@@ -18,8 +18,7 @@ Parameters:
     Type: String
     Default: "SKG-EC2"
   JenkinsMCKVP:
-    Type: String
-    Default: "skg-devops-keypair"
+    Type: AWS::EC2::KeyPair::KeyName
   JenkinsSG:
     Type: String
     Default: "sg-04d10855ad95d0dda"
